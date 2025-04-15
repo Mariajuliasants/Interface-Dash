@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitações | Educa Mente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="img/icons.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="img/logo.svg" alt="Educa Mente" class="navbar-logo">
+      </a>
+      <ul class="navbar-menu">
+        <li class="navbar-item">
+          <a href="index.html" class="navbar-link" title="Dashboard">
+            <span class="navbar-icon" id="icon-home"></span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="navbar-item">
+          <a href="history.html" class="navbar-link" title="Histórico">
+            <span class="navbar-icon" id="icon-history"></span>
+            <span>Histórico</span>
+          </a>
+        </li>
+        <li class="navbar-item">
+          <a href="requests.html" class="navbar-link active" title="Solicitações">
+            <span class="navbar-icon" id="icon-requests"></span>
+            <span>Solicitações</span>
+          </a>
+        </li>
+      </ul>
+      <label class="switch">
+        <input type="checkbox" id="toggle-dark-mode">
+        <span class="slider"></span>
+        <span class="label-text">MODO ESCURO</span>
+      </label>    
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Solicitações</h1>
+        <p class="page-subtitle">Gerencie as solicitações de atendimento</p>
+      </div>
+
+      <!-- Requests Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Gerenciamento de Solicitações</h2>
+        </div>
+        <div class="card-body">
+          <!-- Tabs -->
+          <div class="tabs">
+            <div class="tab active" data-tab="pending">Pendentes</div>
+            <div class="tab" data-tab="completed">Finalizadas</div>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="tab-content active" id="tab-pending">
+            <div class="loading-spinner" id="pending-loading"></div>
+            <div id="pending-list" style="display: none"></div>
+            <div id="no-pending" style="display: none" class="text-center py-12 text-gray-500">
+              Nenhuma solicitação pendente encontrada.
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-completed">
+            <div class="loading-spinner" id="completed-loading"></div>
+            <div id="completed-list" style="display: none"></div>
+            <div id="no-completed" style="display: none" class="text-center py-12 text-gray-500">
+              Nenhuma solicitação finalizada encontrada.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p class="footer-text">© 2025 Educa Mente - Sistema de Gestão para Psicopedagogos</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Insere os ícones na navbar
+      document.getElementById('icon-home').innerHTML = icons.home;
+      document.getElementById('icon-history').innerHTML = icons.history;
+      document.getElementById('icon-requests').innerHTML = icons.requests;
+
+      // Configurar as abas
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Remover classe 'active' de todas as abas
+          tabs.forEach(t => t.classList.remove('active'));
+          
+          // Adicionar classe 'active' à aba clicada
+          this.classList.add('active');
+          
+          // Esconder todos os conteúdos de abas
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+          });
+          
+          // Mostrar o conteúdo da aba selecionada
+          const tabName = this.getAttribute('data-tab');
+          document.getElementById(`tab-${tabName}`).classList.add('active');
+        });
+      });
+
+      // Carregar dados iniciais
+      setTimeout(() => {
+        loadPendingRequests();
+        loadCompletedRequests();
+      }, 800);
+    });
+
+    // Função para carregar as solicitações pendentes
+    function loadPendingRequests() {
+      const requests = data.pendingRequests;
+      const pendingList = document.getElementById('pending-list');
+      const noPending = document.getElementById('no-pending');
+      const pendingLoading = document.getElementById('pending-loading');
+
+      // Remove o loader
+      pendingLoading.style.display = 'none';
+      
+      if (requests.length === 0) {
+        noPending.style.display = 'block';
+        return;
+      }
+
+      // Renderiza as solicitações
+      pendingList.style.display = 'block';
+      pendingList.innerHTML = requests.map(request => `
+        <div class="appointment-card">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div>
+              <h3 class="font-medium">${request.studentName}</h3>
+              <div class="text-sm text-light mt-1">
+                <div class="flex items-center gap-1">
+                  ${icons.calendar}
+                  <span>Enviado: ${utils.formatDate(request.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+              <div class="flex items-center gap-1 text-light">
+                ${icons.phone}
+                <span class="text-sm">${request.phone}</span>
+              </div>
+              <div class="flex items-center gap-1 text-light">
+                ${icons.mail}
+                <span class="text-sm">${request.email}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <span class="badge badge-primary">
+              ${request.requestType}
+            </span>
+            
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-success" onclick="acceptRequest(${request.id})">
+                ${icons.check}
+                <span style="margin-left: 4px">Aceitar</span>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="declineRequest(${request.id})">
+                ${icons.x}
+                <span style="margin-left: 4px">Recusar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Função para carregar as solicitações finalizadas
+    function loadCompletedRequests() {
+      const requests = data.completedRequests;
+      const completedList = document.getElementById('completed-list');
+      const noCompleted = document.getElementById('no-completed');
+      const completedLoading = document.getElementById('completed-loading');
+
+      // Remove o loader
+      completedLoading.style.display = 'none';
+      
+      if (requests.length === 0) {
+        noCompleted.style.display = 'block';
+        return;
+      }
+
+      // Renderiza as solicitações
+      completedList.style.display = 'block';
+      completedList.innerHTML = requests.map(request => `
+        <div class="appointment-card">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div>
+              <h3 class="font-medium">${request.studentName}</h3>
+              <div class="text-sm text-light mt-1">
+                <div class="flex items-center gap-1">
+                  ${icons.calendar}
+                  <span>Enviado: ${utils.formatDate(request.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+              <div class="flex items-center gap-1 text-light">
+                ${icons.phone}
+                <span class="text-sm">${request.phone}</span>
+              </div>
+              <div class="flex items-center gap-1 text-light">
+                ${icons.mail}
+                <span class="text-sm">${request.email}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <span class="badge badge-primary">
+              ${request.requestType}
+            </span>
+            
+            <div class="flex items-center gap-1 text-light">
+              ${icons.clock}
+              <span class="text-sm">Respondido: ${utils.formatDate(request.updatedAt)}</span>
+            </div>
+          </div>
+          
+          <div class="mt-2 border-t border-gray-200 pt-2">
+            <span class="badge ${request.status === 'approved' ? 'btn-success' : 'btn-danger'}" style="color: white">
+              ${request.status === 'approved' ? 'Aprovado' : 'Recusado'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Função para aceitar uma solicitação
+    function acceptRequest(id) {
+      alert(`Aceitando solicitação ID: ${id} (será implementado futuramente)`);
+    }
+
+    // Função para recusar uma solicitação
+    function declineRequest(id) {
+      alert(`Recusando solicitação ID: ${id} (será implementado futuramente)`);
+    }
+  </script>
+</body>
+</html>

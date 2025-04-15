@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Educa Mente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="img/icons.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="img/logo.svg" alt="Educa Mente" class="navbar-logo">
+      </a>
+      <ul class="navbar-menu">
+        <li class="navbar-item">
+          <a href="index.html" class="navbar-link active" title="Dashboard">
+            <span class="navbar-icon" id="icon-home"></span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="navbar-item">
+          <a href="history.html" class="navbar-link" title="Histórico">
+            <span class="navbar-icon" id="icon-history"></span>
+            <span>Histórico</span>
+          </a>
+        </li>
+        <li class="navbar-item">
+          <a href="requests.html" class="navbar-link" title="Solicitações">
+            <span class="navbar-icon" id="icon-requests"></span>
+            <span>Solicitações</span>
+          </a>
+        </li>
+      </ul>
+      <label class="switch">
+        <input type="checkbox" id="toggle-dark-mode">
+        <span class="slider"></span>
+        <span class="label-text">MODO ESCURO</span>
+      </label>              
+    </div>
+  </nav>
+
+  <!-- Modal de Detalhes do Agendamento -->
+  <div class="modal" id="appointment-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Detalhes do Agendamento</h2>
+        <button class="modal-close" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="appointment-details">
+        <!-- Conteúdo será preenchido via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="edit-appointment">Editar</button>
+        <button class="btn btn-outline" id="close-appointment">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Welcome Header -->
+      <div class="welcome-header">
+        <h1 class="welcome-name" id="welcome-name">Olá, Dra. Maria</h1>
+        <p class="welcome-date" id="welcome-date">Carregando...</p>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3">
+        <!-- Left Column - Today's Appointments & Pending Requests -->
+        <div class="grid-column" style="grid-column: span 1">
+          <!-- Daily Appointments -->
+          <div class="card">
+            <div class="card-header flex justify-between items-center">
+              <h2 class="card-title">Atendimentos do Dia</h2>
+              <span class="badge badge-primary" id="appointments-count">0 agendados</span>
+            </div>
+            <div class="card-body" id="daily-appointments">
+              <div class="loading-spinner" id="appointments-loading"></div>
+              <div id="appointments-list" style="display: none"></div>
+              <div id="no-appointments" style="display: none" class="text-center py-8 text-gray-500">
+                Nenhum atendimento agendado para hoje.
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Requests -->
+          <div class="card mt-4">
+            <div class="card-header flex justify-between items-center">
+              <h2 class="card-title">Solicitações Pendentes</h2>
+              <span class="badge badge-warning" id="requests-count">0 novas</span>
+            </div>
+            <div class="card-body" id="pending-requests">
+              <div class="loading-spinner" id="requests-loading"></div>
+              <div id="requests-list" style="display: none"></div>
+              <div id="no-requests" style="display: none" class="text-center py-4 text-gray-500">
+                Nenhuma solicitação pendente.
+              </div>
+            </div>
+            <div class="card-footer">
+              <a href="requests.html" class="btn btn-outline" style="width: 100%">
+                <span>Ver todas solicitações</span>
+                <span id="icon-arrow-right" style="margin-left: 8px"></span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column - Weekly Calendar -->
+        <div class="grid-column" style="grid-column: span 2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Agenda Semanal</h2>
+              <p class="card-subtitle" id="week-range">Carregando...</p>
+            </div>
+            <div class="card-body">
+              <div class="calendar-header">
+                <button class="btn btn-sm" id="prev-week">
+                  <span id="icon-chevron-left"></span>
+                </button>
+                
+                <div class="calendar-days" id="calendar-days">
+                  <!-- Dias da semana serão inseridos via JavaScript -->
+                </div>
+                
+                <button class="btn btn-sm" id="next-week">
+                  <span id="icon-chevron-right"></span>
+                </button>
+              </div>
+
+              <div class="time-slots" id="time-slots">
+                <div class="loading-spinner" id="calendar-loading"></div>
+                <div id="time-slots-list" style="display: none"></div>
+              </div>
+            </div>
+            <div class="card-footer flex justify-end">
+              <button class="btn btn-secondary" id="new-appointment">
+                <span id="icon-plus" style="margin-right: 8px"></span>
+                <span>Novo Atendimento</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p class="footer-text">© 2025 Educa Mente - Sistema de Gestão para Psicopedagogos</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="img/icons.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Insere os ícones na navbar
+      document.getElementById('icon-home').innerHTML = icons.home;
+      document.getElementById('icon-history').innerHTML = icons.history;
+      document.getElementById('icon-requests').innerHTML = icons.requests;
+      document.getElementById('icon-arrow-right').innerHTML = icons.arrowRight;
+      document.getElementById('icon-chevron-left').innerHTML = icons.chevronLeft;
+      document.getElementById('icon-chevron-right').innerHTML = icons.chevronRight;
+      document.getElementById('icon-plus').innerHTML = icons.plus;
+
+      // Inicializar a aplicação
+      await initApp();
+
+      // Configurar eventos dos botões
+      document.getElementById('new-appointment').addEventListener('click', function() {
+        alert('Funcionalidade de novo atendimento será implementada futuramente!');
+      });
+    });
+
+    // Função para inicializar a aplicação
+    async function initApp() {
+      try {
+        // Atualiza o cabeçalho de boas-vindas com data atual
+        document.getElementById('welcome-date').textContent = utils.getCurrentFormattedDate();
+
+        // Obter dados do usuário e atualizar saudação
+        data.currentUser = await api.getCurrentUser();
+        if (data.currentUser) {
+          document.getElementById('welcome-name').textContent = `Olá, ${data.currentUser.name.split(' ')[0]}`;
+        }
+
+        // Carregar todos os dados iniciais simultaneamente
+        await Promise.all([
+          loadDailyAppointments(),
+          loadPendingRequests(),
+          loadTimeSlots(),
+          loadAppointmentHistory()
+        ]);
+
+        // Inicializar o calendário semanal
+        await initializeWeeklyCalendar();
+      } catch (error) {
+        console.error('Erro ao inicializar a aplicação:', error);
+      }
+    }
+
+    // Função para carregar os atendimentos do dia
+    async function loadDailyAppointments() {
+      const appointmentsCount = document.getElementById('appointments-count');
+      const appointmentsList = document.getElementById('appointments-list');
+      const noAppointments = document.getElementById('no-appointments');
+      const appointmentsLoading = document.getElementById('appointments-loading');
+
+      try {
+        // Obter atendimentos do dia da API
+        data.todayAppointments = await api.getTodayAppointments() || [];
+
+        // Atualiza o contador
+        appointmentsCount.textContent = `${data.todayAppointments.length} agendados`;
+
+        // Remove o loader
+        appointmentsLoading.style.display = 'none';
+        
+        if (!data.todayAppointments || data.todayAppointments.length === 0) {
+          noAppointments.style.display = 'block';
+          return;
+        }
+
+        // Renderiza os atendimentos
+        appointmentsList.style.display = 'block';
+        appointmentsList.innerHTML = data.todayAppointments.map(appointment => `
+          <div class="appointment-card">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-medium">${appointment.studentName}</h3>
+                <p class="text-sm text-light">${appointment.studentAge} anos - ${appointment.grade}</p>
+              </div>
+              <span class="badge badge-primary">
+                ${utils.formatTimeDisplay(appointment.time)}
+              </span>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs text-light">${appointment.type}</span>
+              <button class="btn btn-sm btn-outline" onclick="viewAppointmentDetails(${appointment.id})">
+                <span>Detalhes</span>
+                <span style="margin-left: 4px">${icons.chevronRight}</span>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Erro ao carregar atendimentos do dia:', error);
+        appointmentsLoading.style.display = 'none';
+        noAppointments.style.display = 'block';
+        noAppointments.textContent = 'Erro ao carregar atendimentos.';
+      }
+    }
+
+    // Função para carregar as solicitações pendentes
+    async function loadPendingRequests() {
+      const requestsCount = document.getElementById('requests-count');
+      const requestsList = document.getElementById('requests-list');
+      const noRequests = document.getElementById('no-requests');
+      const requestsLoading = document.getElementById('requests-loading');
+
+      try {
+        // Obter solicitações pendentes da API
+        data.pendingRequests = await api.getPendingRequests() || [];
+
+        // Atualiza o contador
+        requestsCount.textContent = `${data.pendingRequests.length} novas`;
+
+        // Remove o loader
+        requestsLoading.style.display = 'none';
+        
+        if (!data.pendingRequests || data.pendingRequests.length === 0) {
+          noRequests.style.display = 'block';
+          return;
+        }
+
+        // Renderiza as solicitações (apenas as 3 primeiras)
+        requestsList.style.display = 'block';
+        requestsList.innerHTML = data.pendingRequests.slice(0, 3).map((request, index) => `
+          <div class="request-item ${index < Math.min(data.pendingRequests.length, 3) - 1 ? 'border-b' : ''}">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="request-name">${request.studentName}</h3>
+                <p class="request-date">Enviado: ${utils.formatDate(request.createdAt)}</p>
+              </div>
+              <button class="btn btn-sm" onclick="viewRequestDetails(${request.id})">
+                ${icons.eye}
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Erro ao carregar solicitações pendentes:', error);
+        requestsLoading.style.display = 'none';
+        noRequests.style.display = 'block';
+        noRequests.textContent = 'Erro ao carregar solicitações.';
+      }
+    }
+
+    // Função para carregar os horários disponíveis
+    async function loadTimeSlots() {
+      try {
+        data.timeSlots = await api.getTimeSlots() || [];
+      } catch (error) {
+        console.error('Erro ao carregar horários disponíveis:', error);
+        data.timeSlots = [];
+      }
+    }
+
+    // Função para carregar o histórico de atendimentos
+    async function loadAppointmentHistory() {
+      try {
+        data.pastAppointments = await api.getAppointmentHistory() || [];
+      } catch (error) {
+        console.error('Erro ao carregar histórico de atendimentos:', error);
+        data.pastAppointments = [];
+      }
+    }
+
+    // Função para inicializar o calendário semanal
+    async function initializeWeeklyCalendar() {
+      const today = new Date();
+      let selectedDate = today;
+      let selectedDay = { weekDayIndex: today.getDay(), date: today };
+      
+      // Obter os dias da semana
+      const weekDays = utils.getWeekDays(selectedDate);
+      
+      // Definir o dia selecionado para o dia atual ou o primeiro dia da semana se for fim de semana
+      if (today.getDay() === 0 || today.getDay() === 6) {
+        selectedDay = weekDays[0];
+      } else {
+        const todayIndex = weekDays.findIndex(day => 
+          day.weekDayIndex === today.getDay()
+        );
+        if (todayIndex !== -1) {
+          selectedDay = weekDays[todayIndex];
+        } else {
+          selectedDay = weekDays[0];
+        }
+      }
+      
+      // Atualizar o intervalo da semana
+      document.getElementById('week-range').textContent = utils.getDisplayWeek(weekDays);
+      
+      // Carregar os agendamentos da semana
+      await loadWeeklyAppointments(selectedDate.toISOString());
+      
+      // Renderizar os dias da semana
+      renderCalendarDays(weekDays, selectedDay);
+      
+      // Renderizar os horários para o dia selecionado
+      renderTimeSlots(selectedDay);
+      
+      // Configurar eventos dos botões de navegação
+      document.getElementById('prev-week').addEventListener('click', async function() {
+        const prevWeek = new Date(selectedDate);
+        prevWeek.setDate(prevWeek.getDate() - 7);
+        selectedDate = prevWeek;
+        
+        // Carregar os agendamentos da semana anterior
+        await loadWeeklyAppointments(selectedDate.toISOString());
+        
+        const newWeekDays = utils.getWeekDays(selectedDate);
+        selectedDay = newWeekDays[0];
+        
+        document.getElementById('week-range').textContent = utils.getDisplayWeek(newWeekDays);
+        renderCalendarDays(newWeekDays, selectedDay);
+        renderTimeSlots(selectedDay);
+      });
+      
+      document.getElementById('next-week').addEventListener('click', async function() {
+        const nextWeek = new Date(selectedDate);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        selectedDate = nextWeek;
+        
+        // Carregar os agendamentos da próxima semana
+        await loadWeeklyAppointments(selectedDate.toISOString());
+        
+        const newWeekDays = utils.getWeekDays(selectedDate);
+        selectedDay = newWeekDays[0];
+        
+        document.getElementById('week-range').textContent = utils.getDisplayWeek(newWeekDays);
+        renderCalendarDays(newWeekDays, selectedDay);
+        renderTimeSlots(selectedDay);
+      });
+    }
+    
+    // Função para carregar os agendamentos da semana
+    async function loadWeeklyAppointments(startDate) {
+      try {
+        data.weeklyAppointments = await api.getWeeklyAppointments(startDate) || [];
+      } catch (error) {
+        console.error('Erro ao carregar agendamentos semanais:', error);
+        data.weeklyAppointments = [];
+      }
+    }
+
+    // Função para renderizar os dias da semana no calendário
+    function renderCalendarDays(weekDays, selectedDay) {
+      const calendarDays = document.getElementById('calendar-days');
+      
+      calendarDays.innerHTML = weekDays.map(day => `
+        <button class="day-item ${day.weekDayIndex === selectedDay.weekDayIndex ? 'active' : ''}" 
+                data-day-index="${day.weekDayIndex}" 
+                data-date="${day.date.toISOString()}">
+          <div class="day-name">${day.shortName}</div>
+          <div class="day-number">${day.date.getDate()}</div>
+        </button>
+      `).join('');
+      
+      // Adicionar evento de clique para cada dia
+      calendarDays.querySelectorAll('.day-item').forEach(dayItem => {
+        dayItem.addEventListener('click', function() {
+          const dayIndex = parseInt(this.getAttribute('data-day-index'));
+          const dateStr = this.getAttribute('data-date');
+          
+          // Atualizar a classe 'active'
+          calendarDays.querySelectorAll('.day-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          this.classList.add('active');
+          
+          // Atualizar o dia selecionado
+          const newSelectedDay = weekDays.find(day => day.weekDayIndex === dayIndex);
+          renderTimeSlots(newSelectedDay);
+        });
+      });
+    }
+
+    // Função para renderizar os horários para o dia selecionado
+    function renderTimeSlots(selectedDay) {
+      const timeSlotsLoading = document.getElementById('calendar-loading');
+      const timeSlotsList = document.getElementById('time-slots-list');
+      
+      // Mostrar o loader e esconder a lista
+      timeSlotsLoading.style.display = 'block';
+      timeSlotsList.style.display = 'none';
+      
+      // Combinar todos os agendamentos
+      const allAppointments = [
+        ...data.todayAppointments, 
+        ...data.weeklyAppointments, 
+        ...data.pastAppointments
+      ];
+      
+      // Renderizar os horários com pequeno atraso para mostrar loading
+      setTimeout(() => {
+        // Renderizar os horários
+        timeSlotsList.innerHTML = data.timeSlots.map(slot => {
+          const appointment = utils.getAppointmentForTimeSlot(allAppointments, slot.time, selectedDay);
+          
+          return `
+            <div class="time-slot">
+              <div class="time-label">${slot.time}</div>
+              <div class="slot-content ${appointment ? 'booked' : 'empty'}" 
+                   onclick="${appointment ? `viewAppointmentDetails(${appointment.id})` : `addAppointment('${slot.time}', '${selectedDay.date.toISOString()}')`}">
+                ${appointment ? `
+                  <div class="text-sm font-medium">${appointment.studentName}</div>
+                  <div class="text-xs text-light">${appointment.type}</div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        // Esconder o loader e mostrar a lista
+        timeSlotsLoading.style.display = 'none';
+        timeSlotsList.style.display = 'block';
+      }, 300);
+    }
+
+    // Função para visualizar detalhes de um atendimento
+    async function viewAppointmentDetails(id) {
+      console.log("View details for appointment", id);
+      
+      // Encontrar o agendamento em todos os conjuntos de agendamentos
+      const allAppointments = [
+        ...data.todayAppointments, 
+        ...data.weeklyAppointments, 
+        ...data.pastAppointments
+      ];
+      
+      const appointment = allAppointments.find(app => app.id === id);
+      
+      if (!appointment) {
+        alert('Agendamento não encontrado!');
+        return;
+      }
+      
+      // Preencher conteúdo da modal
+      const appointmentDetails = document.getElementById('appointment-details');
+      appointmentDetails.innerHTML = `
+        <div class="detail-row">
+          <div class="detail-label">Aluno</div>
+          <div class="detail-value">${appointment.studentName}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Idade</div>
+          <div class="detail-value">${appointment.studentAge} anos</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Série</div>
+          <div class="detail-value">${appointment.grade}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Data</div>
+          <div class="detail-value">${utils.formatDate(appointment.date)}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Horário</div>
+          <div class="detail-value">${utils.formatTimeDisplay(appointment.time)}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Tipo de Atendimento</div>
+          <div class="detail-value">${appointment.type}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            ${appointment.completed ? 
+              '<span class="badge badge-success">Concluído</span>' : 
+              '<span class="badge badge-primary">Agendado</span>'}
+          </div>
+        </div>
+        ${appointment.notes ? `
+        <div class="detail-row">
+          <div class="detail-label">Observações</div>
+          <div class="detail-value">${appointment.notes}</div>
+        </div>
+        ` : ''}
+      `;
+      
+      // Configurar eventos da modal
+      document.getElementById('close-modal').addEventListener('click', closeAppointmentModal);
+      document.getElementById('close-appointment').addEventListener('click', closeAppointmentModal);
+      document.getElementById('edit-appointment').addEventListener('click', function() {
+        alert(`Edição do agendamento ID: ${id} será implementada futuramente!`);
+      });
+      
+      // Exibir a modal
+      document.getElementById('appointment-modal').classList.add('visible');
+    }
+    
+    // Função para fechar a modal de agendamento
+    function closeAppointmentModal() {
+      document.getElementById('appointment-modal').classList.remove('visible');
+    }
+
+    // Função para visualizar detalhes de uma solicitação
+    function viewRequestDetails(id) {
+      console.log("View details for request", id);
+      alert(`Detalhes da solicitação ID: ${id} serão implementados futuramente!`);
+    }
+
+    // Função para adicionar um novo atendimento
+    function addAppointment(time, date) {
+      alert(`Adicionar atendimento às ${time} em ${utils.formatDate(date)} será implementado futuramente!`);
+    }
+  </script>
+</body>
+</html>
